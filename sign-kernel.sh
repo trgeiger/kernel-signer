@@ -4,16 +4,18 @@ set -ouex pipefail
 
 kernel_version=""
 
-if command -v rpm; then
-  kernel_version=$(rpm -qa | grep -P 'kernel-(|'"$KERNEL_SUFFIX"'-)(\d+\.\d+\.\d+)' | sed -E 's/kernel-(|'"$KERNEL_SUFFIX"'-)//')
+if [[ "$KERNEL_SUFFIX" != "" ]]; then
+  kernel_version=$(rpm -qa | grep -P 'kernel-('"$KERNEL_SUFFIX"'-)(\d+\.\d+\.\d+)' | sed -E 's/kernel-('"$KERNEL_SUFFIX"'-)//')
+else
+  kernel_version=$(rpm -qa | grep -P 'kernel-(\d+\.\d+\.\d+)' | sed -E 's/kernel-//')
 fi
 
-if command -v rpm-ostree; then
-  rpm-ostree install sbsigntools openssl
+if command -v dnf5; then
+  dnf5 -y install sbsigntools openssl
 elif command -v dnf; then
-  dnf install sbsigntools openssl
-elif command -v dnf5; then
-  dnf5 install sbsigntools openssl
+  dnf -y install sbsigntools openssl
+elif command -v rpm-ostree; then
+  rpm-ostree install sbsigntools openssl
 fi
 
 # Private key
